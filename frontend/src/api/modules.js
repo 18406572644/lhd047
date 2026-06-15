@@ -103,8 +103,20 @@ export const routesAPI = {
 }
 
 export const statsAPI = {
-  getStats() {
-    return api.get('/statistics')
+  getStats(days = null) {
+    const params = days ? { days } : {}
+    return api.get('/statistics', { params })
+  },
+  getTimeseries(days = null) {
+    const params = days ? { days } : {}
+    return api.get('/statistics/timeseries', { params })
+  },
+  exportCSV(days = null) {
+    const params = days ? { days } : {}
+    return api.get('/statistics/export/csv', {
+      params,
+      responseType: 'blob'
+    })
   }
 }
 

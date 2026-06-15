@@ -26,7 +26,6 @@
   async function loadEvents() {
     try {
       events = await timelineAPI.getByBuilding(buildingId)
-      visibleItems = new Set()
     } catch (e) {
       console.error('加载时间轴失败', e)
     } finally {
@@ -40,7 +39,9 @@
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const id = entry.target.dataset.id
-            visibleItems = new Set([...visibleItems, id])
+            visibleItems = visibleItems
+            visibleItems.add(id)
+            entry.target.classList.add('visible')
           }
         })
       },
@@ -101,10 +102,6 @@
     return $auth.user?.id === event.submitted_by
   }
 
-  function isVisible(id) {
-    return visibleItems.has(String(id))
-  }
-
   $: sortedEvents = [...events].sort((a, b) => a.year - b.year)
 </script>
 
@@ -138,24 +135,24 @@
         <h4 class="form-title">添加历史事件</h4>
         <div class="form-grid">
           <div class="form-group">
-            <label for="timeline-year">年份 *</label>
-            <input id="timeline-year" type="number" bind:value={formYear} placeholder="例：1956" min="0" max="2100" />
+            <label>年份 *</label>
+            <input type="number" bind:value={formYear} placeholder="例：1956" min="0" max="2100" />
           </div>
           <div class="form-group">
-            <label for="timeline-title">事件标题 *</label>
-            <input id="timeline-title" type="text" bind:value={formTitle} placeholder="例：工厂建成投产" maxlength="200" />
+            <label>事件标题 *</label>
+            <input type="text" bind:value={formTitle} placeholder="例：工厂建成投产" maxlength="200" />
           </div>
           <div class="form-group full-width">
-            <label for="timeline-desc">事件描述</label>
-            <textarea id="timeline-desc" bind:value={formDescription} placeholder="描述该年份发生的重要事件..." rows="3"></textarea>
+            <label>事件描述</label>
+            <textarea bind:value={formDescription} placeholder="描述该年份发生的重要事件..." rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label for="timeline-image">图片链接</label>
-            <input id="timeline-image" type="text" bind:value={formImageUrl} placeholder="https://..." />
+            <label>图片链接</label>
+            <input type="text" bind:value={formImageUrl} placeholder="https://..." />
           </div>
           <div class="form-group">
-            <label for="timeline-source">信息来源</label>
-            <input id="timeline-source" type="text" bind:value={formSource} placeholder="例：地方志、口述历史" />
+            <label>信息来源</label>
+            <input type="text" bind:value={formSource} placeholder="例：地方志、口述历史" />
           </div>
         </div>
         <div class="form-footer">
@@ -173,7 +170,7 @@
     <div class="timeline">
       <div class="timeline-line"></div>
       {#each sortedEvents as event, index (event.id)}
-        <div class="timeline-item" data-id={event.id} class:visible={isVisible(event.id)}>
+        <div class="timeline-item" data-id={event.id} class:even={index % 2 === 0}>
           <div class="timeline-node">
             <div class="node-dot {event.image_url ? 'has-image' : ''}"></div>
           </div>

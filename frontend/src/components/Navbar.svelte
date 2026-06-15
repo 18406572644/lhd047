@@ -32,6 +32,7 @@
       <a href="#/map" use:link class="nav-link">探索地图</a>
       <a href="#/routes" use:link class="nav-link">探索路线</a>
       <a href="#/rankings" use:link class="nav-link">热门排行</a>
+      <a href="#/dashboard" use:link class="nav-link">数据看板</a>
     </div>
 
     <div class="nav-actions">
@@ -61,6 +62,7 @@
       <a href="#/map" use:link class="mobile-link" on:click={toggleMobileMenu}>探索地图</a>
       <a href="#/routes" use:link class="mobile-link" on:click={toggleMobileMenu}>探索路线</a>
       <a href="#/rankings" use:link class="mobile-link" on:click={toggleMobileMenu}>热门排行</a>
+      <a href="#/dashboard" use:link class="mobile-link" on:click={toggleMobileMenu}>数据看板</a>
       <div class="mobile-divider"></div>
       {#if isLoggedIn}
         <a href="#/upload" use:link class="mobile-link" on:click={toggleMobileMenu}>记录废墟</a>

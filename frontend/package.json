@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "axios": "^1.6.2",
+    "dayjs": "^1.11.10",
+    "echarts": "^6.1.0",
     "leaflet": "^1.9.4",
-    "svelte-spa-router": "^4.0.1",
-    "dayjs": "^1.11.10"
+    "svelte-spa-router": "^4.0.1"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.1",

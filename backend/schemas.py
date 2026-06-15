@@ -226,6 +226,17 @@ class BuildingListWithPagination(BaseModel):
     page_size: int
 
 
+class GeoPoint(BaseModel):
+    latitude: float
+    longitude: float
+    count: int
+
+
+class TimeSeriesPoint(BaseModel):
+    date: str
+    count: int
+
+
 class StatisticsResponse(BaseModel):
     total_buildings: int
     total_users: int
@@ -233,6 +244,8 @@ class StatisticsResponse(BaseModel):
     total_photos: int
     buildings_by_type: dict
     buildings_by_danger_level: dict
+    buildings_by_year: dict = {}
+    geo_distribution: List[GeoPoint] = []
     top_explored: List[BuildingListResponse]
 
 

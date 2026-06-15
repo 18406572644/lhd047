@@ -7,6 +7,7 @@
   import BuildingDetail from './pages/BuildingDetail.svelte'
   import MapView from './pages/MapView.svelte'
   import Rankings from './pages/Rankings.svelte'
+  import Dashboard from './pages/Dashboard.svelte'
   import Login from './pages/Login.svelte'
   import Register from './pages/Register.svelte'
   import Upload from './pages/Upload.svelte'
@@ -19,6 +20,7 @@
     '/buildings/:id': BuildingDetail,
     '/map': MapView,
     '/rankings': Rankings,
+    '/dashboard': Dashboard,
     '/routes': RoutesPage,
     '/login': Login,
     '/register': Register,
