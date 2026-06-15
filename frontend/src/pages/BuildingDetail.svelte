@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { link } from 'svelte-spa-router'
   import dayjs from 'dayjs'
   import { buildingsAPI, commentsAPI, mediaAPI } from '../api/modules'
@@ -17,9 +17,46 @@
 
   let activeTab = 'info'
 
+  let lightboxOpen = false
+  let lightboxIndex = 0
+
+  function openLightbox(index) {
+    lightboxIndex = index
+    lightboxOpen = true
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeLightbox() {
+    lightboxOpen = false
+    document.body.style.overflow = ''
+  }
+
+  function prevPhoto() {
+    if (building.photos.length === 0) return
+    lightboxIndex = (lightboxIndex - 1 + building.photos.length) % building.photos.length
+  }
+
+  function nextPhoto() {
+    if (building.photos.length === 0) return
+    lightboxIndex = (lightboxIndex + 1) % building.photos.length
+  }
+
+  function handleKeydown(e) {
+    if (!lightboxOpen) return
+    if (e.key === 'Escape') closeLightbox()
+    if (e.key === 'ArrowLeft') prevPhoto()
+    if (e.key === 'ArrowRight') nextPhoto()
+  }
+
   onMount(async () => {
     await loadBuilding()
     await loadComments()
+    window.addEventListener('keydown', handleKeydown)
+  })
+
+  onDestroy(() => {
+    window.removeEventListener('keydown', handleKeydown)
+    document.body.style.overflow = ''
   })
 
   async function loadBuilding() {
@@ -213,10 +250,17 @@
               <h3 class="info-title">📷 实拍照片</h3>
               {#if building.photos && building.photos.length > 0}
                 <div class="photo-grid grid grid-3">
-                  {#each building.photos as photo}
-                    <div class="photo-item">
-                      <div class="photo-placeholder">
-                        <span class="photo-icon">📷</span>
+                  {#each building.photos as photo, index}
+                    <div class="photo-item" on:click={() => openLightbox(index)}>
+                      <div class="photo-wrapper">
+                        <img 
+                          src={photo.url} 
+                          alt={photo.caption || building.title}
+                          class="photo-image"
+                        />
+                        <div class="photo-overlay">
+                          <span class="zoom-icon">🔍</span>
+                        </div>
                       </div>
                       {#if photo.caption}
                         <p class="photo-caption">{photo.caption}</p>
@@ -387,6 +431,27 @@
         </div>
       </div>
     </div>
+
+    {#if lightboxOpen && building.photos && building.photos.length > 0}
+      <div class="lightbox" on:click|self={closeLightbox}>
+        <button class="lightbox-close" on:click={closeLightbox}>&times;</button>
+        <button class="lightbox-nav lightbox-prev" on:click={prevPhoto}>&#10094;</button>
+        <button class="lightbox-nav lightbox-next" on:click={nextPhoto}>&#10095;</button>
+        <div class="lightbox-content">
+          <img 
+            src={building.photos[lightboxIndex].url} 
+            alt={building.photos[lightboxIndex].caption || building.title}
+            class="lightbox-image"
+          />
+          {#if building.photos[lightboxIndex].caption}
+            <p class="lightbox-caption">{building.photos[lightboxIndex].caption}</p>
+          {/if}
+          <div class="lightbox-counter">
+            {lightboxIndex + 1} / {building.photos.length}
+          </div>
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -592,20 +657,49 @@
   .photo-item {
     border-radius: 4px;
     overflow: hidden;
+    cursor: pointer;
   }
 
-  .photo-placeholder {
+  .photo-wrapper {
     aspect-ratio: 4/3;
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, var(--cement-mid), var(--cement-dark));
+  }
+
+  .photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .photo-item:hover .photo-image {
+    transform: scale(1.05);
+  }
+
+  .photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
-  .photo-icon {
-    font-size: 40px;
-    opacity: 0.5;
+  .photo-item:hover .photo-overlay {
+    opacity: 1;
+  }
+
+  .zoom-icon {
+    font-size: 32px;
+    color: #fff;
   }
 
   .photo-caption {
@@ -613,6 +707,98 @@
     font-size: 13px;
     color: var(--text-muted);
     background: var(--bg-mid);
+  }
+
+  .lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 1001;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+
+  .lightbox-close:hover {
+    opacity: 1;
+  }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+  }
+
+  .lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .lightbox-prev {
+    left: 20px;
+  }
+
+  .lightbox-next {
+    right: 20px;
+  }
+
+  .lightbox-content {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .lightbox-image {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .lightbox-caption {
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+  }
+
+  .lightbox-counter {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
   }
 
   .video-list {

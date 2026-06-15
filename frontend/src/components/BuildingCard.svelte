@@ -8,16 +8,23 @@
 <article class="building-card card">
   <a href={`#/buildings/${building.id}`} use:link class="card-link">
     <div class="card-image">
-      <div class="image-placeholder">
-        <span class="building-type-badge">{building.building_type}</span>
-        <div class="danger-indicator danger-{building.danger_level}">
-          <span class="danger-icon">⚠</span>
-          <span class="danger-text">危险等级 {building.danger_level}</span>
-        </div>
-        <div class="card-overlay">
-          <div class="overlay-icon">🔍</div>
-          <span>查看详情</span>
-        </div>
+      {#if building.photos && building.photos.length > 0}
+        <img 
+          src={building.photos[0].url} 
+          alt={building.title}
+          class="card-photo"
+        />
+      {:else}
+        <div class="image-placeholder"></div>
+      {/if}
+      <span class="building-type-badge">{building.building_type}</span>
+      <div class="danger-indicator danger-{building.danger_level}">
+        <span class="danger-icon">⚠</span>
+        <span class="danger-text">危险等级 {building.danger_level}</span>
+      </div>
+      <div class="card-overlay">
+        <div class="overlay-icon">🔍</div>
+        <span>查看详情</span>
       </div>
     </div>
 
@@ -76,16 +83,19 @@
     overflow: hidden;
   }
 
+  .card-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   .image-placeholder {
     width: 100%;
     height: 100%;
     background: 
       linear-gradient(135deg, var(--cement-mid) 0%, var(--cement-dark) 100%);
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 16px;
   }
 
   .image-placeholder::before {
@@ -100,7 +110,9 @@
   }
 
   .building-type-badge {
-    align-self: flex-start;
+    position: absolute;
+    top: 16px;
+    left: 16px;
     background: linear-gradient(135deg, var(--moss-dark), var(--moss-mid));
     color: var(--text-bright);
     padding: 4px 12px;
@@ -111,7 +123,9 @@
   }
 
   .danger-indicator {
-    align-self: flex-start;
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
     display: flex;
     align-items: center;
     gap: 4px;
