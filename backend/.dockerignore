@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.venv
+venv
+*.db
+ruins_explorer.db
+uploads
+.git
+.gitignore
+.DS_Store
+*.log
