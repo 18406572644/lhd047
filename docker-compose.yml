@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ruins-backend
+    ports:
+      - "6047:8000"
+    volumes:
+      - backend-uploads:/app/uploads
+      - backend-db:/app/ruins_explorer.db
+    networks:
+      - ruins-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ruins-frontend
+    ports:
+      - "2047:80"
+    depends_on:
+      - backend
+    networks:
+      - ruins-network
+    restart: unless-stopped
+
+volumes:
+  backend-uploads:
+  backend-db:
+
+networks:
+  ruins-network:
+    driver: bridge
