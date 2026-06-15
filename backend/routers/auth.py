@@ -5,7 +5,7 @@ from sqlalchemy import select
 from database import get_db
 from models import User
 from schemas import UserCreate, UserLogin, UserResponse, Token
-from auth import hash_password, verify_password, create_access_token
+from auth import hash_password, verify_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
 
@@ -35,7 +35,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(db_user)
 
-    access_token = create_access_token(data={"sub": db_user.id})
+    access_token = create_access_token(data={"sub": str(db_user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -57,10 +57,10 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
             detail="用户已被禁用"
         )
 
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: User = Depends()):
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user

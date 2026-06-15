@@ -40,11 +40,21 @@
         email: formData.email,
         password: formData.password
       })
+      auth.login(data.access_token, {})
       const userData = await authAPI.getMe()
-      auth.login(data.access_token, userData)
+      auth.updateUser(userData)
       push('/')
     } catch (e) {
-      error = e.detail || '注册失败，请重试'
+      if (Array.isArray(e.detail)) {
+        error = e.detail.map(d => d.msg || d.message).join('; ')
+      } else if (typeof e.detail === 'string') {
+        error = e.detail
+      } else if (typeof e === 'string') {
+        error = e
+      } else {
+        error = '注册失败，请重试'
+      }
+      auth.logout()
     } finally {
       loading = false
     }

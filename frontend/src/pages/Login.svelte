@@ -21,11 +21,21 @@
 
     try {
       const data = await authAPI.login(formData)
+      auth.login(data.access_token, {})
       const userData = await authAPI.getMe()
-      auth.login(data.access_token, userData)
+      auth.updateUser(userData)
       push('/')
     } catch (e) {
-      error = e.detail || '登录失败，请检查用户名和密码'
+      if (Array.isArray(e.detail)) {
+        error = e.detail.map(d => d.msg || d.message).join('; ')
+      } else if (typeof e.detail === 'string') {
+        error = e.detail
+      } else if (typeof e === 'string') {
+        error = e
+      } else {
+        error = '登录失败，请检查用户名和密码'
+      }
+      auth.logout()
     } finally {
       loading = false
     }
