@@ -132,7 +132,19 @@ async def get_building(
 
     building.explore_count += 1
     await db.commit()
-    await db.refresh(building)
+
+    result = await db.execute(
+        select(Building)
+        .where(Building.id == building_id)
+        .options(
+            selectinload(Building.tags),
+            selectinload(Building.photos),
+            selectinload(Building.videos),
+            selectinload(Building.hazards),
+            selectinload(Building.owner)
+        )
+    )
+    building = result.scalar_one()
 
     return building
 
@@ -156,7 +168,19 @@ async def create_building(
         db.add(tag)
 
     await db.commit()
-    await db.refresh(building)
+
+    result = await db.execute(
+        select(Building)
+        .where(Building.id == building.id)
+        .options(
+            selectinload(Building.tags),
+            selectinload(Building.photos),
+            selectinload(Building.videos),
+            selectinload(Building.hazards),
+            selectinload(Building.owner)
+        )
+    )
+    building = result.scalar_one()
     return building
 
 
@@ -181,7 +205,19 @@ async def update_building(
         setattr(building, key, value)
 
     await db.commit()
-    await db.refresh(building)
+
+    result = await db.execute(
+        select(Building)
+        .where(Building.id == building_id)
+        .options(
+            selectinload(Building.tags),
+            selectinload(Building.photos),
+            selectinload(Building.videos),
+            selectinload(Building.hazards),
+            selectinload(Building.owner)
+        )
+    )
+    building = result.scalar_one()
     return building
 
 

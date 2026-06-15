@@ -107,3 +107,18 @@ export const statsAPI = {
     return api.get('/statistics')
   }
 }
+
+export const timelineAPI = {
+  getByBuilding(buildingId) {
+    return api.get(`/timeline/building/${buildingId}`)
+  },
+  create(buildingId, data) {
+    return api.post(`/timeline/building/${buildingId}`, data)
+  },
+  update(eventId, data) {
+    return api.put(`/timeline/${eventId}`, data)
+  },
+  delete(eventId) {
+    return api.delete(`/timeline/${eventId}`)
+  }
+}

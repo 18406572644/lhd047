@@ -72,12 +72,21 @@ async def create_route(
         point = RoutePoint(
             route_id=route.id,
             order_index=idx,
-            **point_data.model_dump()
+            **point_data.model_dump(exclude={"order_index"})
         )
         db.add(point)
 
     await db.commit()
-    await db.refresh(route)
+
+    result = await db.execute(
+        select(ExplorationRoute)
+        .where(ExplorationRoute.id == route.id)
+        .options(
+            selectinload(ExplorationRoute.user),
+            selectinload(ExplorationRoute.points)
+        )
+    )
+    route = result.scalar_one()
     return route
 
 

@@ -4,6 +4,7 @@
   import dayjs from 'dayjs'
   import { buildingsAPI, commentsAPI, mediaAPI } from '../api/modules'
   import { auth } from '../stores/auth'
+  import Timeline from '../components/Timeline.svelte'
 
   export let params
 
@@ -201,13 +202,10 @@
                 <p class="text-muted">暂无历史背景介绍</p>
               {/if}
 
-              <div class="timeline-placeholder">
-                <div class="timeline-dot"></div>
-                <div class="timeline-line"></div>
-                <div class="timeline-dot"></div>
-                <div class="timeline-line"></div>
-                <div class="timeline-dot"></div>
-              </div>
+              <div class="divider"></div>
+
+              <h3 class="info-title">🗓️ 建筑编年史</h3>
+              <Timeline buildingId={params.id} />
             </div>
 
           {:else if activeTab === 'media'}
@@ -585,27 +583,6 @@
     font-size: 15px;
     text-indent: 2em;
     margin-bottom: 30px;
-  }
-
-  .timeline-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0.3;
-  }
-
-  .timeline-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--rust-mid);
-  }
-
-  .timeline-line {
-    width: 60px;
-    height: 2px;
-    background: var(--border-color);
   }
 
   .photo-grid {

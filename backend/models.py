@@ -4,6 +4,24 @@ from sqlalchemy.sql import func
 from database import Base
 
 
+class TimelineEvent(Base):
+    __tablename__ = "timeline_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    building_id = Column(Integer, ForeignKey("buildings.id"), nullable=False)
+    year = Column(Integer, nullable=False)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, default="")
+    image_url = Column(String(500), default="")
+    source = Column(String(300), default="")
+    status = Column(String(20), default="approved")
+    submitted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    building = relationship("Building", back_populates="timeline_events")
+    submitter = relationship("User", foreign_keys=[submitted_by])
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -47,6 +65,7 @@ class Building(Base):
     comments = relationship("Comment", back_populates="building", cascade="all, delete-orphan")
     hazards = relationship("SafetyHazard", back_populates="building", cascade="all, delete-orphan")
     tags = relationship("BuildingTag", back_populates="building", cascade="all, delete-orphan")
+    timeline_events = relationship("TimelineEvent", back_populates="building", cascade="all, delete-orphan", order_by="TimelineEvent.year")
 
 
 class BuildingTag(Base):
@@ -114,7 +133,8 @@ class Comment(Base):
 
     building = relationship("Building", back_populates="comments")
     user = relationship("User", back_populates="comments")
-    replies = relationship("Comment", remote_side=[id])
+    parent = relationship("Comment", remote_side=[id], back_populates="replies")
+    replies = relationship("Comment", back_populates="parent")
 
 
 class ExplorationRoute(Base):

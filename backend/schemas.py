@@ -234,3 +234,34 @@ class StatisticsResponse(BaseModel):
     buildings_by_type: dict
     buildings_by_danger_level: dict
     top_explored: List[BuildingListResponse]
+
+
+class TimelineEventBase(BaseModel):
+    year: int
+    title: str
+    description: str = ""
+    image_url: str = ""
+    source: str = ""
+
+
+class TimelineEventCreate(TimelineEventBase):
+    pass
+
+
+class TimelineEventUpdate(BaseModel):
+    year: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    source: Optional[str] = None
+
+
+class TimelineEventResponse(TimelineEventBase):
+    id: int
+    building_id: int
+    status: str
+    submitted_by: Optional[int] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
